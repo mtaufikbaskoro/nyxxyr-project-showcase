@@ -30,6 +30,22 @@ If Turbopack cannot spawn its CSS worker in a restricted environment, use the su
 next build --webpack
 ```
 
+## GitHub showcase
+
+Set `GITHUB_ACCOUNT` to the public GitHub account shown in the Open source section. The integration is read-only and uses the user repositories endpoint because the configured account (`mtaufikbaskoro`) is a personal account. If an organization is used later, change `githubShowcaseAccountType` in `data/github-showcase.ts` and verify its response before release.
+
+```bash
+cp .env.example .env.local
+```
+
+`GITHUB_TOKEN` is optional and server-only. A read-only token raises the API rate limit. Do not add a `NEXT_PUBLIC_` prefix or commit a real token.
+
+Featured repositories, their order, labels, description overrides, and approved homepage hosts live in `data/github-showcase.ts`. Only repositories in this explicit allowlist render. Empty repositories, forks, archived repositories, disabled repositories, and private repositories are excluded.
+
+Repository facts are cached for the `hours` Next.js cache profile under the `github-showcase` tag. A successful response is normalized before it reaches the UI. If GitHub cannot be reached or returns malformed data, `data/github-showcase-fallback.json` is used. If both the live response and snapshot contain no allowlisted repositories, the section is omitted.
+
+After intentionally changing the featured list or refreshing repository metadata, update the fallback snapshot with normalized repository fields only. Never include tokens, private data, or raw API payloads. A saved-snapshot note appears after seven days of fallback age.
+
 ## System documentation
 
 - [Design guide](docs/design-guide.md)

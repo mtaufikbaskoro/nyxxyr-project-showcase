@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { getGithubProfileUrl } from "@/lib/github-showcase";
 
-const navigation = [
+const baseNavigation = [
   { href: "/#front-page", label: "Front page" },
   { href: "/#selected-work", label: "Selected work" },
   { href: "/#approach", label: "Approach" },
@@ -8,6 +9,15 @@ const navigation = [
 ];
 
 export function SiteHeader() {
+  const githubProfileUrl = getGithubProfileUrl();
+  const navigation = githubProfileUrl
+    ? [
+        ...baseNavigation.slice(0, 2),
+        { href: "/#open-source", label: "Open source" },
+        ...baseNavigation.slice(2),
+      ]
+    : baseNavigation;
+
   return (
     <header className="site-header">
       <div className="utility-bar">
@@ -41,6 +51,8 @@ export function SiteHeader() {
 }
 
 export function SiteFooter() {
+  const githubProfileUrl = getGithubProfileUrl();
+
   return (
     <footer className="site-footer" aria-labelledby="colophon-title">
       <div className="site-footer__lead">
@@ -54,6 +66,9 @@ export function SiteFooter() {
       </div>
       <nav className="site-footer__nav" aria-label="Footer navigation">
         <Link href="/#selected-work">Selected work</Link>
+        {githubProfileUrl ? (
+          <a href={githubProfileUrl}>GitHub profile ↗</a>
+        ) : null}
         <Link href="/#approach">Approach</Link>
         <Link href="/design-system">Design desk</Link>
         <a href="mailto:hello@nyxxyr.studio">hello@nyxxyr.studio</a>

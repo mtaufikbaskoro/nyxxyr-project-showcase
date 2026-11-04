@@ -7,6 +7,7 @@ import {
   SectionHeading,
   StoryCard,
 } from "@/components/editorial";
+import { GithubShowcase } from "@/components/github-showcase";
 import { ProjectArt } from "@/components/project-art";
 import { featuredProject, projects } from "@/lib/projects";
 
@@ -172,6 +173,8 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      <GithubShowcase />
 
       <section
         id="approach"

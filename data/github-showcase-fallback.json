@@ -1,0 +1,83 @@
+{
+  "checkedAt": "2026-11-04T00:00:00.000Z",
+  "repositories": [
+    {
+      "id": 1348762919,
+      "name": "bas-dila-invitation-wedding",
+      "fullName": "mtaufikbaskoro/bas-dila-invitation-wedding",
+      "url": "https://github.com/mtaufikbaskoro/bas-dila-invitation-wedding",
+      "description": null,
+      "homepageUrl": "https://bas-dila-invitation-wedding.vercel.app",
+      "language": "TypeScript",
+      "topics": [],
+      "updatedAt": "2026-11-03T15:23:57Z",
+      "archived": false,
+      "fork": false
+    },
+    {
+      "id": 1260676116,
+      "name": "mohan-builder",
+      "fullName": "mtaufikbaskoro/mohan-builder",
+      "url": "https://github.com/mtaufikbaskoro/mohan-builder",
+      "description": "monster hunter world info and set builder",
+      "homepageUrl": null,
+      "language": "TypeScript",
+      "topics": [],
+      "updatedAt": "2026-06-05T18:48:06Z",
+      "archived": false,
+      "fork": false
+    },
+    {
+      "id": 1076191849,
+      "name": "qr-vue",
+      "fullName": "mtaufikbaskoro/qr-vue",
+      "url": "https://github.com/mtaufikbaskoro/qr-vue",
+      "description": "implementing vue to quantum-rekatama",
+      "homepageUrl": null,
+      "language": "Vue",
+      "topics": [],
+      "updatedAt": "2025-10-26T17:16:56Z",
+      "archived": false,
+      "fork": false
+    },
+    {
+      "id": 864764660,
+      "name": "frontend-aplikasi-sdgs",
+      "fullName": "mtaufikbaskoro/frontend-aplikasi-sdgs",
+      "url": "https://github.com/mtaufikbaskoro/frontend-aplikasi-sdgs",
+      "description": null,
+      "homepageUrl": null,
+      "language": "JavaScript",
+      "topics": [],
+      "updatedAt": "2024-09-29T05:18:25Z",
+      "archived": false,
+      "fork": false
+    },
+    {
+      "id": 808882858,
+      "name": "fooder",
+      "fullName": "mtaufikbaskoro/fooder",
+      "url": "https://github.com/mtaufikbaskoro/fooder",
+      "description": "website for bappeda test",
+      "homepageUrl": null,
+      "language": "PHP",
+      "topics": [],
+      "updatedAt": "2024-06-04T03:28:48Z",
+      "archived": false,
+      "fork": false
+    },
+    {
+      "id": 376280292,
+      "name": "onlib",
+      "fullName": "mtaufikbaskoro/onlib",
+      "url": "https://github.com/mtaufikbaskoro/onlib",
+      "description": "web about a book and it's description",
+      "homepageUrl": null,
+      "language": "JavaScript",
+      "topics": [],
+      "updatedAt": "2021-06-14T04:52:29Z",
+      "archived": false,
+      "fork": false
+    }
+  ]
+}
