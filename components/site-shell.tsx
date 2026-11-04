@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { getGithubProfileUrl } from "@/lib/github-showcase";
+import { profile } from "@/lib/profile";
 
 const baseNavigation = [
   { href: "/#front-page", label: "Front page" },
   { href: "/#selected-work", label: "Selected work" },
-  { href: "/#approach", label: "Approach" },
+  { href: "/#background", label: "Background" },
   { href: "/#contact", label: "Correspondence" },
 ];
 
@@ -21,18 +22,21 @@ export function SiteHeader() {
   return (
     <header className="site-header">
       <div className="utility-bar">
-        <p>Vol. 01 · November 2026</p>
-        <p className="utility-bar__note">An independent project showcase</p>
+        <p>Personal portfolio</p>
+        <p className="utility-bar__note">Web and data systems</p>
         <Link href="/design-system">Design desk</Link>
       </div>
       <div className="masthead">
-        <Link className="masthead__brand" href="/" aria-label="Nyxxyr front page">
-          Nyxxyr
+        <Link
+          className="masthead__brand"
+          href="/"
+          aria-label={`${profile.name} front page`}
+        >
+          <span>M Taufik</span>
+          <span>Baskoro</span>
         </Link>
-        <p className="masthead__descriptor">
-          Interfaces, identities, and useful things.
-        </p>
-        <p className="masthead__edition">Specimen edition · No. 01</p>
+        <p className="masthead__descriptor">{profile.summary}</p>
+        <p className="masthead__edition">Selected work · 2026</p>
       </div>
       <nav className="section-nav" aria-label="Primary navigation">
         <ul>
@@ -57,24 +61,23 @@ export function SiteFooter() {
     <footer className="site-footer" aria-labelledby="colophon-title">
       <div className="site-footer__lead">
         <p className="kicker">Colophon</p>
-        <h2 id="colophon-title">Nyxxyr / Notes from the desk</h2>
+        <h2 id="colophon-title">{profile.name} / Notes from the desk</h2>
         <p>
-          A working showcase for thoughtful digital products. Project names,
-          outcomes, and credits in this edition are representative until final
-          material is approved.
+          A personal portfolio about frontend development, government data
+          systems, and software quality. Project stories are kept separate from
+          public code repositories.
         </p>
       </div>
       <nav className="site-footer__nav" aria-label="Footer navigation">
         <Link href="/#selected-work">Selected work</Link>
-        {githubProfileUrl ? (
-          <a href={githubProfileUrl}>GitHub profile ↗</a>
-        ) : null}
-        <Link href="/#approach">Approach</Link>
+        <a href={githubProfileUrl ?? profile.githubUrl}>GitHub profile ↗</a>
+        <Link href="/#background">Background</Link>
         <Link href="/design-system">Design desk</Link>
-        <a href="mailto:hello@nyxxyr.studio">hello@nyxxyr.studio</a>
+        <a href={`mailto:${profile.email}`}>{profile.email}</a>
+        <a href={profile.linkedInUrl}>LinkedIn ↗</a>
       </nav>
       <div className="site-footer__folio">
-        <span>© 2026 Nyxxyr</span>
+        <span>© {profile.copyrightYear} {profile.name}</span>
         <span>Set in system editorial types</span>
         <a href="#main-content">Return to top ↑</a>
       </div>

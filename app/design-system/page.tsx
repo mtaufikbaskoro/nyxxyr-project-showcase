@@ -9,12 +9,13 @@ import {
   StoryCard,
 } from "@/components/editorial";
 import { ProjectArt } from "@/components/project-art";
+import { profile } from "@/lib/profile";
 import { featuredProject, projects } from "@/lib/projects";
 
 export const metadata: Metadata = {
   title: "Design desk",
   description:
-    "The living editorial design system for the Nyxxyr project showcase.",
+    "The living editorial design system for M Taufik Baskoro's project portfolio.",
   robots: {
     index: false,
     follow: false,
@@ -70,7 +71,7 @@ const typeSpecimens = [
   {
     className: "type-masthead",
     label: "Masthead / 120–218 px",
-    sample: "Nyxxyr",
+    sample: "Taufik Baskoro",
   },
   {
     className: "type-display",
@@ -142,9 +143,9 @@ export default function DesignSystemPage() {
           <Kicker accent>The style desk</Kicker>
           <h1 id="desk-title">A newspaper system built for the screen.</h1>
           <p>
-            This is the working reference for Nyxxyr’s project showcase. It
-            documents the restrained broadsheet direction and renders the same
-            tokens and components used by the live pages.
+            This is the working reference for M Taufik Baskoro&apos;s project
+            portfolio. It documents the restrained broadsheet direction and
+            renders the same tokens and components used by the live pages.
           </p>
         </div>
         <aside className="desk-hero__note">
@@ -321,16 +322,20 @@ export default function DesignSystemPage() {
         <div className="component-grid">
           <article className="specimen-card">
             <Kicker accent>Labels and metadata</Kicker>
-            <h3>Civic systems / Northline</h3>
+            <h3>{featuredProject.kicker}</h3>
             <p>
               Kickers orient the reader. Metadata adds context without becoming
               a second headline.
             </p>
-            <MetaList items={["October 2026", "7 min read", "Product"]} />
+            <MetaList
+              items={[featuredProject.focus, featuredProject.readingTime]}
+            />
             <div className="tag-row">
-              <span className="tag">Research</span>
-              <span className="tag">Service design</span>
-              <span className="tag">React</span>
+              {profile.skills.slice(0, 3).map((skill) => (
+                <span className="tag" key={skill}>
+                  {skill}
+                </span>
+              ))}
             </div>
           </article>
           <article className="specimen-card">
@@ -344,16 +349,18 @@ export default function DesignSystemPage() {
             </figure>
           </article>
           <article className="specimen-card specimen-card--dark">
-            <Kicker>Metric and outcome</Kicker>
-            <Metric
-              value={featuredProject.metric}
-              label={featuredProject.metricLabel}
-            />
+            <Kicker>Conditional project evidence</Kicker>
+            {featuredProject.evidence ? (
+              <Metric
+                value={featuredProject.evidence.value}
+                label={featuredProject.evidence.label}
+              />
+            ) : null}
           </article>
           <article className="specimen-card">
-            <Kicker>Pull quote</Kicker>
-            <PullQuote attribution="Nyxxyr editorial principle">
-              Print teaches restraint. The screen asks for a clear next step.
+            <Kicker>Pull quote / optional</Kicker>
+            <PullQuote>
+              Project evidence appears only when it can be supported.
             </PullQuote>
           </article>
         </div>

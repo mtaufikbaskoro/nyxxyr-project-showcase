@@ -1,20 +1,21 @@
 import type { Metadata } from "next";
 import { SiteFooter, SiteHeader } from "@/components/site-shell";
+import { profile } from "@/lib/profile";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Nyxxyr — Selected projects",
-    template: "%s — Nyxxyr",
+    default: "M Taufik Baskoro - Web programmer",
+    template: `%s | ${profile.name}`,
   },
   description:
-    "Nyxxyr's project showcase: interfaces, identities, and useful digital systems presented as stories.",
-  applicationName: "Nyxxyr Project Showcase",
-  authors: [{ name: "Nyxxyr" }],
+    "M Taufik Baskoro's portfolio: frontend development, civic data, and government systems, with work spanning Medan's public-sector projects.",
+  applicationName: "M Taufik Baskoro Portfolio",
+  authors: [{ name: profile.name }],
   openGraph: {
-    title: "Nyxxyr — Selected projects",
+    title: "M Taufik Baskoro - Web programmer",
     description:
-      "A considered look at digital products, identities, and services made useful.",
+      "Selected work in frontend development, civic data, and government systems.",
     type: "website",
   },
 };

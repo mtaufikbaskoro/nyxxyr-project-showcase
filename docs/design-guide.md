@@ -1,10 +1,10 @@
-# Nyxxyr Editorial Design Guide
+# M Taufik Baskoro Editorial Design Guide
 
 ## 1. Purpose and audience
 
-Nyxxyr is presented as an independent studio with a publication's point of view. The showcase is for potential clients, collaborators, and employers who need to understand the quality and range of the work quickly, then choose a project worth reading closely.
+M Taufik Baskoro is presented as a web programmer with a publication's point of view. The portfolio is for potential clients, collaborators, and employers who need to understand his experience and selected work quickly, then choose a project worth reading closely.
 
-The visitor should feel that the work has been selected and edited, understand the studio's focus on useful digital experiences, and have an obvious route to a project feature or correspondence within the first minute.
+The visitor should feel that the work has been selected and edited, understand the focus on frontend development, civic data, and software quality, and have an obvious route to a project story or contact method within the first minute.
 
 ### Experience principles
 
@@ -22,18 +22,21 @@ The front page uses one featured project and a supporting index. Each project re
 - department-style kicker;
 - headline;
 - short summary;
-- date, role, tools, and reading time;
-- one primary outcome and supporting metric;
+- optional project period and role;
+- focus area and reading time;
+- optional project evidence;
 - project artifact and descriptive caption;
-- lead paragraph, two body sections, and a pull quote.
+- lead paragraph and two body sections;
+- optional approved quote.
 
-The current project names, outcomes, and credits are representative specimen content. Replace them with approved copy and evidence before public release.
+Identity, contact details, experience, skills, and credentials come from `lib/profile.ts`. Project stories and evidence come from `lib/projects.ts`.
 
 ### Content resilience
 
 - Headlines should be tested at 60–110 characters and with three or more words that cannot break.
-- Summaries should work at 120–220 characters. Missing summaries fall back to the story lead.
-- Metrics need a plain-language label and a method or context before they are treated as evidence.
+- Summaries should work at 120–220 characters.
+- Evidence needs a plain-language label and must describe verified project scope rather than an inferred outcome.
+- Unsupported dates, roles, outcomes, and quotes remain absent.
 - Artifact descriptions must explain the visible interaction, not only the project name.
 - Dense metadata should wrap in reading order; it must never require horizontal scrolling.
 
@@ -41,14 +44,14 @@ The current project names, outcomes, and credits are representative specimen con
 
 The selected direction is a restrained broadsheet.
 
-It combines a text-first masthead, generous headline scale, high-contrast serif type, structural rules, and asymmetric story placement with contemporary digital spacing and familiar controls. It is more considered than a tabloid, more energetic than a literary supplement, and appropriate for project work that spans civic systems, culture, data, and care.
+It combines a text-first masthead, generous headline scale, high-contrast serif type, structural rules, and asymmetric story placement with contemporary digital spacing and familiar controls. It is more considered than a tabloid, more energetic than a literary supplement, and appropriate for project work that spans civic data, engineering, and education.
 
 ### Alternatives considered
 
 | Direction | Strengths | Why it was not selected |
 | --- | --- | --- |
 | Bold tabloid | Strong first impression; suits short, opinionated work | Risks overpowering the projects and making dense case-study copy feel sensational |
-| Literary supplement | Excellent reading rhythm; quieter character | Can underplay technical and service outcomes; less immediate as a project index |
+| Literary supplement | Excellent reading rhythm; quieter character | Can underplay technical work; less immediate as a project index |
 | Restrained broadsheet | Balanced hierarchy, credibility, and energy; works on mobile when collapsed | Requires disciplined content lengths and a small type system |
 
 ### What makes it feel like a newspaper
@@ -118,8 +121,8 @@ The spacing scale is `4, 8, 12, 16, 24, 32, 48, 64, 96 px`, exposed as `--space-
 - Wide compositions use a twelve-column grid with a `16–32 px` gutter.
 - The lead-to-rail split is approximately 8.5:3.5.
 - The project index alternates 7-span and 5-span stories.
-- The feature article uses notes, reading copy, and outcome columns at wide sizes.
-- At `72rem`, the feature outcome moves below the article.
+- The feature article uses notes, reading copy, and optional project evidence columns at wide sizes.
+- At `72rem`, project evidence moves below the article.
 - At `48rem`, all article layouts become one reading column.
 - At `23rem`, navigation and controls receive extra wrapping and full-width actions.
 
@@ -147,8 +150,8 @@ Body measure remains 62–68 characters even when the surrounding page uses twel
 
 ### Masthead and section navigation
 
-- **Purpose:** Establish Nyxxyr's publication identity and make routes obvious.
-- **Anatomy:** Utility bar, text wordmark, studio descriptor, edition context, primary navigation.
+- **Purpose:** Establish M Taufik Baskoro's portfolio identity and make routes obvious.
+- **Anatomy:** Utility bar, two-line text wordmark, descriptor, portfolio label, primary navigation.
 - **Variants:** Wide masthead; mobile stacked masthead.
 - **Behavior:** Navigation wraps at small widths. Every link has a 44 px target.
 - **Accessibility:** The wordmark is an explicit link with an accessible name. Primary navigation is labeled.
@@ -162,7 +165,7 @@ Body measure remains 62–68 characters even when the surrounding page uses twel
 
 ### Metadata and tags
 
-- **Purpose:** Provide date, reading time, role, tools, and category context.
+- **Purpose:** Provide project focus, reading time, and only verified optional metadata.
 - **Behavior:** Wraps without truncation. The slash separator is decorative.
 - **Accessibility:** Use visible text instead of unexplained icons.
 
@@ -187,7 +190,7 @@ All controls have a 44 px minimum target, hover and active feedback, and a 3 px 
 ### Supporting rail
 
 - **Purpose:** Continue the issue without competing with the lead.
-- **Anatomy:** Section header, numbered stories, one outcome feature.
+- **Anatomy:** Section header, numbered stories, one verified project evidence feature when present.
 - **Content:** Two to three stories. Long titles wrap rather than truncate.
 
 ### Project story card
@@ -199,9 +202,9 @@ All controls have a 44 px minimum target, hover and active feedback, and a 3 px 
 
 ### Project feature
 
-- **Anatomy:** Breadcrumb, kicker, headline, dek, byline, artifact, project notes, reading copy, pull quote, outcome, next story.
-- **Desktop:** Notes / copy / outcome grid.
-- **Tablet:** Outcome moves below the reading flow.
+- **Anatomy:** Breadcrumb, kicker, headline, dek, byline, artifact, project notes, reading copy, optional quote, optional evidence, next story.
+- **Desktop:** Notes / copy / evidence grid.
+- **Tablet:** Evidence moves below the reading flow.
 - **Mobile:** Notes collapse, copy remains one measure, next-story action stacks.
 - **Accessibility:** Uses one article, a single H1, then H2 sections. The drop cap is CSS-only and does not alter DOM text.
 
@@ -212,24 +215,25 @@ All controls have a 44 px minimum target, hover and active feedback, and a 3 px 
 - **Behavior:** Artifact composition scales without becoming horizontal scroll.
 - **Accessibility:** The visual container has an `image` role and a descriptive name. No hidden interaction or unlabeled control lives inside the artifact.
 
-### Outcome feature
+### Project evidence
 
-- **Purpose:** Bring one approved result to the fore.
+- **Purpose:** Bring one verified project scope detail to the fore.
 - **Anatomy:** Large value and plain-language label.
 - **Accessibility:** The metric and label remain text, not an image.
-- **Content:** Do not publish a metric without an explanation of what it measures.
+- **Content:** Render only when `evidence` exists. Do not present scope as a measured outcome.
 
 ### Pull quote
 
 - **Purpose:** Create a deliberate reading pause.
 - **Content limit:** One or two sentences.
-- **Accessibility:** Uses a real `blockquote` and visible attribution.
+- **Accessibility:** Uses a real `blockquote` and visible attribution when supplied.
+- **Content:** Omit the component when no approved quote exists.
 
 ### Contact and colophon
 
 - **Purpose:** Provide a low-friction route to correspondence and disclose edition context.
-- **Behavior:** Contact email remains a normal `mailto:` link. Replace the representative address before release.
-- **Colophon:** Records the representative-content status and keeps secondary information quiet.
+- **Behavior:** Email, LinkedIn, and GitHub remain normal links.
+- **Colophon:** Names the author and describes the portfolio focus.
 
 ## 6. Page compositions
 
@@ -237,10 +241,10 @@ All controls have a 44 px minimum target, hover and active feedback, and a 3 px 
 
 1. Edition utility bar and text masthead.
 2. Department navigation.
-3. Dateline, editorial statement, and issue brief.
-4. Dominant lead story with supporting rail and metric.
+3. Portfolio label, editorial statement, and profile brief.
+4. Dominant lead story with supporting rail and verified evidence.
 5. Asymmetric selected-work index.
-6. Working-method band.
+6. Background and technical-skills band.
 7. Contact strip.
 8. Colophon.
 
@@ -249,7 +253,7 @@ All controls have a 44 px minimum target, hover and active feedback, and a 3 px 
 1. Breadcrumb and newspaper-like story header.
 2. Full-width press-style project artifact.
 3. Structured project notes and long-form reading copy.
-4. Pull quote and outcome.
+4. Optional quote and project evidence.
 5. Next-dispatch route.
 
 ### Design desk
@@ -289,7 +293,7 @@ Target: WCAG 2.2 AA.
 | `320px` | Single column, wrapped navigation, full-width primary actions, no overflow |
 | `375px` | Single column with comfortable margins and intact metadata |
 | `768px` | Single reading column; masthead and editorial sections stack deliberately |
-| `1024px` | Editorial grids return; feature outcome supports article below |
+| `1024px` | Editorial grids return; project evidence supports article below |
 | `1280px` | Lead and rail composition; asymmetric index |
 | `1440px` | Full broadsheet composition with sustained reading measure |
 
@@ -305,25 +309,28 @@ Target: WCAG 2.2 AA.
 | Reusable editorial components | `components/editorial.tsx` |
 | Reusable site shell | `components/site-shell.tsx` |
 | Press-style project artifacts | `components/project-art.tsx` |
-| Representative project data | `lib/projects.ts` |
+| Shared profile and contact data | `lib/profile.ts` |
+| Authored project data | `lib/projects.ts` |
 | Decisions and open questions | `docs/design-decisions.md` |
 
 ## 10. Release checklist
 
-- Replace representative project names, roles, metrics, captions, and credits.
-- Replace `hello@nyxxyr.studio` with the approved contact address.
-- Confirm the edition date and volume are real site context.
+- Confirm the three project stories and optional evidence against the supplied CV.
+- Confirm the public name, email, LinkedIn, and GitHub routes.
+- Keep the phone number private unless explicitly approved.
+- Confirm every project report role and date is supported before adding it.
 - Decide whether `/design-system` remains noindex, is protected, or is excluded.
-- Add approved case-study media and replace or refine the representative artifact compositions.
+- Add approved case-study media when supplied; keep CSS artifacts labelled as illustrative.
 - Confirm site title, description, and social preview copy.
 - Test with VoiceOver/NVDA, 200% zoom, forced colors, and reduced motion.
 - Restore an approved accent only after checking contrast against every surface.
 
 ## 11. Open questions
 
-- Are the four project stories representative or should they be replaced with live client work?
+- Are project dates or specific roles available for Astra JM and Dapodikdasmen Kota Medan?
+- Are the `qr-vue` and `frontend-aplikasi-sdgs` repositories approved as project evidence?
 - Should project features include gallery, process, and team-credit modules?
 - Is a dark reading mode required after validating the light paper experience?
-- Should issue numbers, volume, and dateline be editorial site context or removed?
-- Which contact workflow should replace the placeholder email?
+- Are any approved project screenshots or testimonials available?
+- Should the phone number ever be published?
 - Should the design desk be internal-only in the first production release?

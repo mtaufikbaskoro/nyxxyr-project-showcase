@@ -92,6 +92,10 @@ export function StoryCard({
   project,
   orientation = "standard",
 }: StoryCardProps) {
+  const metaItems = [project.period, project.readingTime].filter(
+    (item): item is string => Boolean(item),
+  );
+
   return (
     <article className={`story-card story-card--${orientation}`}>
       <ProjectArt project={project} />
@@ -104,7 +108,7 @@ export function StoryCard({
         </h3>
         <p>{project.summary}</p>
         <div className="story-card__footer">
-          <MetaList items={[project.date, project.readingTime]} />
+          <MetaList items={metaItems} />
           <Link
             className="text-link"
             href={`/work/${project.slug}`}

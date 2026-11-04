@@ -239,7 +239,22 @@ function parseSnapshot(): GithubShowcaseItem[] {
       return [];
     }
 
-    const repository = parseRepositoryPayload(value, entry);
+    const repository = parseRepositoryPayload(
+      {
+        id: value.id,
+        name: value.name,
+        full_name: value.fullName,
+        html_url: value.url,
+        description: value.description,
+        homepage: value.homepageUrl,
+        language: value.language,
+        topics: value.topics,
+        updated_at: value.updatedAt,
+        archived: value.archived,
+        fork: value.fork,
+      },
+      entry,
+    );
     return repository ? [repository] : [];
   });
 
