@@ -1,0 +1,234 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProjectStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ProjectTheme {
+  CIVIC
+  ENGINEERING
+  EDUCATION
+}
+
+enum BackgroundKind {
+  EXPERIENCE
+  EDUCATION
+}
+
+enum GithubAccountType {
+  USER
+  ORGANIZATION
+}
+
+model Profile {
+  id                String            @id @default(cuid()) @db.VarChar(191)
+  name              String            @db.VarChar(120)
+  summary           String            @db.VarChar(255)
+  email             String            @db.VarChar(254)
+  linkedInUrl       String            @map("linkedin_url") @db.VarChar(500)
+  githubUrl         String            @map("github_url") @db.VarChar(500)
+  githubAccount     String?           @map("github_account") @db.VarChar(39)
+  githubAccountType GithubAccountType @default(USER) @map("github_account_type")
+  availability      String?           @db.Text
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+  projects          Project[]
+  backgroundItems   BackgroundItem[]
+  credentials       Credential[]
+  skills            Skill[]
+
+  @@map("profiles")
+}
+
+model Project {
+  id          String               @id @default(cuid()) @db.VarChar(191)
+  authorId    String               @map("author_id") @db.VarChar(191)
+  slug        String               @unique @db.VarChar(191)
+  sortOrder   Int                  @map("sort_order")
+  kicker      String               @db.VarChar(191)
+  title       String               @db.VarChar(255)
+  summary     String               @db.Text
+  lead        String               @db.Text
+  periodLabel String?              @map("period_label") @db.VarChar(120)
+  role        String?              @db.VarChar(191)
+  focus       String               @db.VarChar(255)
+  readingTime String               @map("reading_time") @db.VarChar(64)
+  takeaway    String               @db.Text
+  theme       ProjectTheme
+  imageAlt    String               @map("image_alt") @db.Text
+  caption     String               @db.Text
+  status      ProjectStatus        @default(DRAFT)
+  publishedAt DateTime?            @map("published_at")
+  createdAt   DateTime             @default(now()) @map("created_at")
+  updatedAt   DateTime             @updatedAt @map("updated_at")
+  author      Profile              @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  sections    ProjectSection[]
+  evidence    ProjectEvidence?
+  quote       ProjectQuote?
+  githubEntry GithubShowcaseEntry?
+
+  @@unique([authorId, sortOrder])
+  @@index([status, sortOrder])
+  @@map("projects")
+}
+
+model ProjectSection {
+  id         String             @id @default(cuid()) @db.VarChar(191)
+  projectId  String             @map("project_id") @db.VarChar(191)
+  position   Int
+  title      String             @db.VarChar(255)
+  project    Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  paragraphs ProjectParagraph[]
+
+  @@unique([projectId, position])
+  @@map("project_sections")
+}
+
+model ProjectParagraph {
+  id        String         @id @default(cuid()) @db.VarChar(191)
+  sectionId String         @map("section_id") @db.VarChar(191)
+  position  Int
+  body      String         @db.Text
+  section   ProjectSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@unique([sectionId, position])
+  @@map("project_paragraphs")
+}
+
+model ProjectEvidence {
+  id        String   @id @default(cuid()) @db.VarChar(191)
+  projectId String   @unique @map("project_id") @db.VarChar(191)
+  value     String   @db.VarChar(191)
+  label     String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("project_evidence")
+}
+
+model ProjectQuote {
+  id          String   @id @default(cuid()) @db.VarChar(191)
+  projectId   String   @unique @map("project_id") @db.VarChar(191)
+  body        String   @db.Text
+  attribution String?  @db.VarChar(255)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("project_quotes")
+}
+
+model BackgroundItem {
+  id           String         @id @default(cuid()) @db.VarChar(191)
+  profileId    String         @map("profile_id") @db.VarChar(191)
+  kind         BackgroundKind
+  position     Int
+  title        String         @db.VarChar(255)
+  organization String         @db.VarChar(255)
+  periodLabel  String?        @map("period_label") @db.VarChar(120)
+  body         String         @db.Text
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+  profile      Profile        @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, position])
+  @@map("background_items")
+}
+
+model Credential {
+  id           String    @id @default(cuid()) @db.VarChar(191)
+  profileId    String    @map("profile_id") @db.VarChar(191)
+  position     Int
+  name         String    @db.VarChar(255)
+  issuer       String    @db.VarChar(255)
+  validThrough DateTime? @map("valid_through") @db.Date
+  score        String?   @db.VarChar(32)
+  description  String    @db.Text
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  profile      Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, position])
+  @@map("credentials")
+}
+
+model Skill {
+  id        String   @id @default(cuid()) @db.VarChar(191)
+  profileId String   @map("profile_id") @db.VarChar(191)
+  position  Int
+  name      String   @db.VarChar(120)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, position])
+  @@map("skills")
+}
+
+model GithubShowcaseEntry {
+  id                  String              @id @default(cuid()) @db.VarChar(191)
+  projectId           String?             @unique @map("project_id") @db.VarChar(191)
+  position            Int
+  repositoryFullName  String              @unique @map("repository_full_name") @db.VarChar(191)
+  label               String?             @db.VarChar(120)
+  descriptionOverride String?             @map("description_override") @db.Text
+  isVisible           Boolean             @default(true) @map("is_visible")
+  createdAt           DateTime            @default(now()) @map("created_at")
+  updatedAt           DateTime            @updatedAt @map("updated_at")
+  project             Project?            @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  allowedHosts        GithubAllowedHost[]
+  snapshot            GithubSnapshot?
+
+  @@map("github_showcase_entries")
+}
+
+model GithubAllowedHost {
+  id       String              @id @default(cuid()) @db.VarChar(191)
+  entryId  String              @map("entry_id") @db.VarChar(191)
+  host     String              @db.VarChar(255)
+  position Int
+  entry    GithubShowcaseEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@unique([entryId, host])
+  @@map("github_allowed_hosts")
+}
+
+model GithubSnapshot {
+  id                  String              @id @default(cuid()) @db.VarChar(191)
+  entryId             String              @unique @map("entry_id") @db.VarChar(191)
+  githubRepositoryId  BigInt              @map("github_repository_id")
+  description         String?             @db.Text
+  homepageUrl         String?             @map("homepage_url") @db.VarChar(500)
+  language            String?             @db.VarChar(100)
+  repositoryUpdatedAt DateTime            @map("repository_updated_at")
+  archived            Boolean
+  fork                Boolean
+  checkedAt           DateTime            @map("checked_at")
+  createdAt           DateTime            @default(now()) @map("created_at")
+  updatedAt           DateTime            @updatedAt @map("updated_at")
+  entry               GithubShowcaseEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  topics              GithubTopic[]
+
+  @@map("github_snapshots")
+}
+
+model GithubTopic {
+  id         String         @id @default(cuid()) @db.VarChar(191)
+  snapshotId String         @map("snapshot_id") @db.VarChar(191)
+  position   Int
+  name       String         @db.VarChar(80)
+  snapshot   GithubSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+
+  @@unique([snapshotId, position])
+  @@map("github_topics")
+}

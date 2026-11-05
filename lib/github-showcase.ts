@@ -1,10 +1,7 @@
+import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
-import fallbackData from "@/data/github-showcase-fallback.json";
-import {
-  githubShowcaseAccountType,
-  githubShowcaseEntries,
-  type GithubShowcaseEntry,
-} from "@/data/github-showcase";
+import { db } from "@/lib/db";
+import { getProfile } from "@/lib/queries/profile";
 
 export type GithubShowcaseRepository = {
   id: number;
@@ -39,6 +36,25 @@ type GithubRepositoryPayload = GithubShowcaseRepository & {
   visibility?: string;
 };
 
+type CurationEntry = {
+  id: string;
+  repositoryFullName: string;
+  label: string | null;
+  descriptionOverride: string | null;
+  allowedHosts: { host: string }[];
+  snapshot: {
+    githubRepositoryId: bigint;
+    description: string | null;
+    homepageUrl: string | null;
+    language: string | null;
+    repositoryUpdatedAt: Date;
+    archived: boolean;
+    fork: boolean;
+    checkedAt: Date;
+    topics: { name: string }[];
+  } | null;
+};
+
 const accountPattern = /^[a-z\d](?:[a-z\d-]{0,37}[a-z\d])?$/i;
 const githubApiVersion = "2022-11-28";
 const fallbackStaleAfterMs = 7 * 24 * 60 * 60 * 1000;
@@ -69,14 +85,7 @@ function isGithubRepositoryUrl(value: string, fullName: string) {
   }
 }
 
-function isApprovedHomepageUrl(
-  value: string,
-  approvedHosts: string[] | undefined,
-) {
-  if (!approvedHosts?.length) {
-    return false;
-  }
-
+function isApprovedHomepageUrl(value: string, entry: CurationEntry) {
   try {
     const url = new URL(value);
     if (
@@ -87,9 +96,10 @@ function isApprovedHomepageUrl(
       return false;
     }
 
-    return approvedHosts.some(
-      (host) =>
-        url.hostname === host || url.hostname.endsWith(`.${host}`),
+    return entry.allowedHosts.some(
+      ({ host }) =>
+        url.hostname.toLowerCase() === host.toLowerCase() ||
+        url.hostname.toLowerCase().endsWith(`.${host.toLowerCase()}`),
     );
   } catch {
     return false;
@@ -98,7 +108,7 @@ function isApprovedHomepageUrl(
 
 function parseRepositoryPayload(
   value: unknown,
-  entry: GithubShowcaseEntry,
+  entry: CurationEntry,
 ): GithubRepositoryPayload | null {
   if (!isRecord(value)) {
     return null;
@@ -151,9 +161,7 @@ function parseRepositoryPayload(
     url: html_url,
     description,
     homepageUrl:
-      homepage && isApprovedHomepageUrl(homepage, entry.allowedHomepageHosts)
-        ? homepage
-        : null,
+      homepage && isApprovedHomepageUrl(homepage, entry) ? homepage : null,
     language,
     topics: topics.filter((topic) => topic.trim()).map((topic) => topic.trim()),
     updatedAt: updated_at,
@@ -177,7 +185,7 @@ function isVisibleRepository(repository: GithubRepositoryPayload) {
 
 function sortByAllowlist(
   repositories: GithubRepositoryPayload[],
-  entries: GithubShowcaseEntry[],
+  entries: CurationEntry[],
 ) {
   const repositoriesByName = new Map(
     repositories.map((repository) => [
@@ -187,19 +195,19 @@ function sortByAllowlist(
   );
 
   return entries.flatMap((entry) => {
-    const repository = repositoriesByName.get(entry.repository.toLowerCase());
+    const repository = repositoriesByName.get(
+      entry.repositoryFullName.toLowerCase(),
+    );
     return repository && isVisibleRepository(repository) ? [repository] : [];
   });
 }
 
 function withDisplayFields(
   repositories: GithubRepositoryPayload[],
+  entries: CurationEntry[],
 ): GithubShowcaseItem[] {
   const entriesByName = new Map(
-    githubShowcaseEntries.map((entry) => [
-      entry.repository.toLowerCase(),
-      entry,
-    ]),
+    entries.map((entry) => [entry.repositoryFullName.toLowerCase(), entry]),
   );
 
   return repositories.map((repository) => {
@@ -207,87 +215,136 @@ function withDisplayFields(
     return {
       ...repository,
       description: entry?.descriptionOverride ?? repository.description,
-      label: entry?.label,
+      label: entry?.label ?? undefined,
     };
   });
 }
 
-function parseSnapshot(): GithubShowcaseItem[] {
-  if (
-    !isRecord(fallbackData) ||
-    !Array.isArray(fallbackData.repositories) ||
-    typeof fallbackData.checkedAt !== "string" ||
-    Number.isNaN(Date.parse(fallbackData.checkedAt))
-  ) {
-    return [];
-  }
+async function getCurationEntries() {
+  return db.githubShowcaseEntry.findMany({
+    where: { isVisible: true },
+    orderBy: { position: "asc" },
+    include: {
+      allowedHosts: { orderBy: { position: "asc" } },
+      snapshot: {
+        include: {
+          topics: { orderBy: { position: "asc" } },
+        },
+      },
+    },
+  });
+}
 
-  const entriesByName = new Map(
-    githubShowcaseEntries.map((entry) => [
-      entry.repository.toLowerCase(),
-      entry,
-    ]),
-  );
-
-  const repositories = fallbackData.repositories.flatMap((value) => {
-    if (!isRecord(value) || typeof value.fullName !== "string") {
+function getStoredRepositories(entries: CurationEntry[]) {
+  return entries.flatMap((entry) => {
+    const snapshot = entry.snapshot;
+    if (!snapshot) {
       return [];
     }
 
-    const entry = entriesByName.get(value.fullName.toLowerCase());
-    if (!entry) {
+    const repositoryId = Number(snapshot.githubRepositoryId);
+    if (!Number.isSafeInteger(repositoryId)) {
       return [];
     }
 
+    const fullName = entry.repositoryFullName.toLowerCase();
+    const name = fullName.split("/").at(-1);
     const repository = parseRepositoryPayload(
       {
-        id: value.id,
-        name: value.name,
-        full_name: value.fullName,
-        html_url: value.url,
-        description: value.description,
-        homepage: value.homepageUrl,
-        language: value.language,
-        topics: value.topics,
-        updated_at: value.updatedAt,
-        archived: value.archived,
-        fork: value.fork,
+        id: repositoryId,
+        name,
+        full_name: fullName,
+        html_url: `https://github.com/${fullName}`,
+        description: snapshot.description,
+        homepage: snapshot.homepageUrl,
+        language: snapshot.language,
+        topics: snapshot.topics.map((topic) => topic.name),
+        updated_at: snapshot.repositoryUpdatedAt.toISOString(),
+        archived: snapshot.archived,
+        fork: snapshot.fork,
       },
       entry,
     );
+
     return repository ? [repository] : [];
   });
-
-  return withDisplayFields(sortByAllowlist(repositories, githubShowcaseEntries));
 }
 
-function getAccount() {
-  const account = process.env.GITHUB_ACCOUNT?.trim();
-  return account && accountPattern.test(account) && account.length <= 39
-    ? account
-    : null;
-}
-
-export function getGithubProfileUrl() {
-  const account = getAccount();
-  return account ? `https://github.com/${account}` : null;
-}
-
-function getFallbackShowcase(account: string): GithubShowcase {
-  const checkedAt = fallbackData.checkedAt;
-  const checkedAtTime = Date.parse(checkedAt);
-  const repositories = parseSnapshot();
+function getFallbackShowcase(
+  account: string,
+  entries: CurationEntry[],
+): GithubShowcase {
+  const checkedAt = new Date(
+    Math.max(
+      0,
+      ...entries.flatMap((entry) =>
+        entry.snapshot ? [entry.snapshot.checkedAt.getTime()] : [],
+      ),
+    ),
+  ).toISOString();
+  const repositories = getStoredRepositories(entries);
 
   return {
     account,
     profileUrl: `https://github.com/${account}`,
-    repositories,
+    repositories: withDisplayFields(
+      sortByAllowlist(repositories, entries),
+      entries,
+    ),
     source: "snapshot",
     checkedAt,
-    isStaleSnapshot:
-      Number.isNaN(checkedAtTime) ||
-      Date.now() - checkedAtTime > fallbackStaleAfterMs,
+    isStaleSnapshot: Date.now() - Date.parse(checkedAt) > fallbackStaleAfterMs,
   };
+}
+
+async function persistSnapshots(
+  repositories: GithubRepositoryPayload[],
+  entries: CurationEntry[],
+  checkedAt: Date,
+) {
+  const entriesByName = new Map(
+    entries.map((entry) => [entry.repositoryFullName.toLowerCase(), entry]),
+  );
+
+  await db.$transaction(async (tx) => {
+    for (const repository of repositories) {
+      const entry = entriesByName.get(repository.fullName.toLowerCase());
+      if (!entry) {
+        continue;
+      }
+
+      const topics = repository.topics.map((name, index) => ({
+        position: index + 1,
+        name,
+      }));
+      const snapshotData = {
+        githubRepositoryId: BigInt(repository.id),
+        description: repository.description,
+        homepageUrl: repository.homepageUrl,
+        language: repository.language,
+        repositoryUpdatedAt: new Date(repository.updatedAt),
+        archived: repository.archived,
+        fork: repository.fork,
+        checkedAt,
+      };
+
+      await tx.githubSnapshot.upsert({
+        where: { entryId: entry.id },
+        update: {
+          ...snapshotData,
+          topics: {
+            deleteMany: {},
+            create: topics,
+          },
+        },
+        create: {
+          entryId: entry.id,
+          ...snapshotData,
+          topics: { create: topics },
+        },
+      });
+    }
+  });
 }
 
 export async function getGithubShowcase(): Promise<GithubShowcase | null> {
@@ -295,13 +352,19 @@ export async function getGithubShowcase(): Promise<GithubShowcase | null> {
   cacheLife("hours");
   cacheTag("github-showcase");
 
-  const account = getAccount();
-  if (!account || githubShowcaseEntries.length === 0) {
+  const profile = await getProfile();
+  const account = profile.githubAccount?.trim();
+  if (!account || !accountPattern.test(account) || account.length > 39) {
+    return null;
+  }
+
+  const entries = await getCurationEntries();
+  if (entries.length === 0) {
     return null;
   }
 
   const endpoint =
-    githubShowcaseAccountType === "organization" ? "orgs" : "users";
+    profile.githubAccountType === "organization" ? "orgs" : "users";
   const token = process.env.GITHUB_TOKEN?.trim();
   const headers: HeadersInit = {
     Accept: "application/vnd.github+json",
@@ -331,10 +394,7 @@ export async function getGithubShowcase(): Promise<GithubShowcase | null> {
     }
 
     const entriesByName = new Map(
-      githubShowcaseEntries.map((entry) => [
-        entry.repository.toLowerCase(),
-        entry,
-      ]),
+      entries.map((entry) => [entry.repositoryFullName.toLowerCase(), entry]),
     );
     const validRepositories: GithubRepositoryPayload[] = [];
     for (const value of payload) {
@@ -357,28 +417,31 @@ export async function getGithubShowcase(): Promise<GithubShowcase | null> {
 
     const allowlistedRepositories = sortByAllowlist(
       validRepositories,
-      githubShowcaseEntries,
+      entries,
     );
-
-    for (const entry of githubShowcaseEntries) {
+    for (const entry of entries) {
       if (
         !allowlistedRepositories.some(
           (repository) =>
             repository.fullName.toLowerCase() ===
-            entry.repository.toLowerCase(),
+            entry.repositoryFullName.toLowerCase(),
         )
       ) {
-        console.warn(`GitHub showcase repository unavailable: ${entry.repository}`);
+        console.warn(
+          `GitHub showcase repository unavailable: ${entry.repositoryFullName}`,
+        );
       }
     }
 
-    const now = new Date().toISOString();
+    const checkedAt = new Date();
+    await persistSnapshots(allowlistedRepositories, entries, checkedAt);
+
     return {
       account,
       profileUrl: `https://github.com/${account}`,
-      repositories: withDisplayFields(allowlistedRepositories),
+      repositories: withDisplayFields(allowlistedRepositories, entries),
       source: "live",
-      checkedAt: now,
+      checkedAt: checkedAt.toISOString(),
       isStaleSnapshot: false,
     };
   } catch (error) {
@@ -387,6 +450,6 @@ export async function getGithubShowcase(): Promise<GithubShowcase | null> {
         error instanceof Error ? error.message : "request failed"
       }`,
     );
-    return getFallbackShowcase(account);
+    return getFallbackShowcase(account, entries);
   }
 }

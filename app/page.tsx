@@ -9,12 +9,21 @@ import {
 } from "@/components/editorial";
 import { GithubShowcase } from "@/components/github-showcase";
 import { ProjectArt } from "@/components/project-art";
-import { profile } from "@/lib/profile";
-import { featuredProject, projects } from "@/lib/projects";
+import { getProfile } from "@/lib/queries/profile";
+import { getPublishedProjects } from "@/lib/queries/projects";
 
-const railProjects = projects.slice(1);
+export default async function Home() {
+  const [profile, projects] = await Promise.all([
+    getProfile(),
+    getPublishedProjects(),
+  ]);
+  const featuredProject = projects[0];
 
-export default function Home() {
+  if (!featuredProject) {
+    throw new Error("No published projects are configured.");
+  }
+
+  const railProjects = projects.slice(1);
   const featuredMeta = [
     `Story ${featuredProject.index}`,
     featuredProject.period,
@@ -201,7 +210,7 @@ export default function Home() {
         <div className="contact-desk__copy">
           <Kicker accent>Correspondence</Kicker>
           <h2 id="contact-title">Have a useful problem worth making clearer?</h2>
-          <p>{profile.availability}</p>
+          {profile.availability ? <p>{profile.availability}</p> : null}
         </div>
         <div className="contact-desk__action">
           <span>Contact</span>

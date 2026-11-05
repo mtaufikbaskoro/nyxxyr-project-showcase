@@ -73,7 +73,7 @@ The global stylesheet holds semantic tokens, responsive layout, custom editorial
 
 - The three project stories use supplied CV facts.
 - The project artifacts are original CSS compositions rather than stock images.
-- The public email and LinkedIn profile are shared from `lib/profile.ts`.
+- The public email and LinkedIn profile are shared from the `Profile` record.
 - The phone number is intentionally omitted.
 - Unsupported dates, roles, testimonials, and measured outcomes are omitted.
 - Optional project evidence describes verified scope rather than an inferred result.

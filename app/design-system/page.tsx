@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import {
   ButtonLink,
   Kicker,
@@ -9,8 +10,8 @@ import {
   StoryCard,
 } from "@/components/editorial";
 import { ProjectArt } from "@/components/project-art";
-import { profile } from "@/lib/profile";
-import { featuredProject, projects } from "@/lib/projects";
+import { getProfile } from "@/lib/queries/profile";
+import { getPublishedProjects } from "@/lib/queries/projects";
 
 export const metadata: Metadata = {
   title: "Design desk",
@@ -131,7 +132,17 @@ const checks = {
   ],
 };
 
-export default function DesignSystemPage() {
+export default async function DesignSystemPage() {
+  const [profile, projects] = await Promise.all([
+    getProfile(),
+    getPublishedProjects(),
+  ]);
+  const featuredProject = projects[0];
+
+  if (!featuredProject || !projects[1] || !projects[2]) {
+    notFound();
+  }
+
   return (
     <main id="main-content" className="page-shell design-desk">
       <section className="desk-hero" aria-labelledby="desk-title">

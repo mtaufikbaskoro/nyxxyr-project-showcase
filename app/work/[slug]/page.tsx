@@ -9,14 +9,19 @@ import {
   PullQuote,
 } from "@/components/editorial";
 import { ProjectArt } from "@/components/project-art";
-import { profile } from "@/lib/profile";
-import { getNextProject, getProject, projects } from "@/lib/projects";
+import { getProfile } from "@/lib/queries/profile";
+import {
+  getNextPublishedProject,
+  getPublishedProject,
+  getPublishedProjects,
+} from "@/lib/queries/projects";
 
 type ProjectPageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const projects = await getPublishedProjects();
   return projects.map((project) => ({ slug: project.slug }));
 }
 
@@ -24,7 +29,7 @@ export async function generateMetadata({
   params,
 }: ProjectPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const project = getProject(slug);
+  const project = await getPublishedProject(slug);
 
   if (!project) {
     return { title: "Project not found" };
@@ -53,13 +58,19 @@ export default function ProjectPage({ params }: ProjectPageProps) {
 
 async function ProjectFeature({ params }: ProjectPageProps) {
   const { slug } = await params;
-  const project = getProject(slug);
+  const [profile, project] = await Promise.all([
+    getProfile(),
+    getPublishedProject(slug),
+  ]);
 
   if (!project) {
     notFound();
   }
 
-  const nextProject = getNextProject(project.slug);
+  const nextProject = await getNextPublishedProject(project.slug);
+  if (!nextProject) {
+    notFound();
+  }
   const bylineItems = [
     `Words by ${profile.name}`,
     project.period,

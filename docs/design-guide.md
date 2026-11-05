@@ -29,7 +29,10 @@ The front page uses one featured project and a supporting index. Each project re
 - lead paragraph and two body sections;
 - optional approved quote.
 
-Identity, contact details, experience, skills, and credentials come from `lib/profile.ts`. Project stories and evidence come from `lib/projects.ts`.
+Identity, contact details, experience, skills, and credentials come from the
+`profiles`, `background_items`, `credentials`, and `skills` tables. Project
+stories and evidence come from the project tables. Server query modules map
+those records into the existing UI contracts.
 
 ### Content resilience
 
@@ -309,8 +312,10 @@ Target: WCAG 2.2 AA.
 | Reusable editorial components | `components/editorial.tsx` |
 | Reusable site shell | `components/site-shell.tsx` |
 | Press-style project artifacts | `components/project-art.tsx` |
-| Shared profile and contact data | `lib/profile.ts` |
-| Authored project data | `lib/projects.ts` |
+| Prisma schema and migrations | `prisma/schema.prisma` |
+| Server profile queries | `lib/queries/profile.ts` |
+| Server project queries | `lib/queries/projects.ts` |
+| Database operations | `docs/database.md` |
 | Decisions and open questions | `docs/design-decisions.md` |
 
 ## 10. Release checklist

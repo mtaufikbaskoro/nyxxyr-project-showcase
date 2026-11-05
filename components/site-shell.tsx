@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { getGithubProfileUrl } from "@/lib/github-showcase";
-import { profile } from "@/lib/profile";
+import type { PortfolioProfile } from "@/lib/queries/profile";
 
 const baseNavigation = [
   { href: "/#front-page", label: "Front page" },
@@ -9,8 +8,18 @@ const baseNavigation = [
   { href: "/#contact", label: "Correspondence" },
 ];
 
-export function SiteHeader() {
-  const githubProfileUrl = getGithubProfileUrl();
+type SiteShellProps = {
+  profile: PortfolioProfile;
+};
+
+function getGithubProfileUrl(profile: PortfolioProfile) {
+  return profile.githubAccount
+    ? `https://github.com/${profile.githubAccount}`
+    : null;
+}
+
+export function SiteHeader({ profile }: SiteShellProps) {
+  const githubProfileUrl = getGithubProfileUrl(profile);
   const navigation = githubProfileUrl
     ? [
         ...baseNavigation.slice(0, 2),
@@ -54,8 +63,8 @@ export function SiteHeader() {
   );
 }
 
-export function SiteFooter() {
-  const githubProfileUrl = getGithubProfileUrl();
+export function SiteFooter({ profile }: SiteShellProps) {
+  const githubProfileUrl = getGithubProfileUrl(profile);
 
   return (
     <footer className="site-footer" aria-labelledby="colophon-title">
