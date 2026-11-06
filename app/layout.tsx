@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { SiteFooter, SiteHeader } from "@/components/site-shell";
+import { Suspense } from "react";
+import { AppShell } from "@/components/app-shell";
 import { getProfile } from "@/lib/queries/profile";
 import "./globals.css";
 
@@ -33,9 +34,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <a className="skip-link" href="#main-content">
           Skip to main content
         </a>
-        <SiteHeader profile={profile} />
-        <div className="site-frame">{children}</div>
-        <SiteFooter profile={profile} />
+        <Suspense fallback={<div className="site-frame">{children}</div>}>
+          <AppShell profile={profile}>{children}</AppShell>
+        </Suspense>
       </body>
     </html>
   );
